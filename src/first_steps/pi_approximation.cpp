@@ -1,19 +1,22 @@
 #include <iostream>
 #include <cmath>
 #include <random>
+#include <limits>
 
-double calculateDistanceFromOrigin(double x, double y) {
-    return sqrt(x * x + y * y);
+// Accept a reference to an array of exactly 2 doubles.
+// This avoids array-to-pointer decay and guarantees size at compile time.
+double calculateDistanceFromOrigin(const double (&point)[2]) {
+    return sqrt(point[0] * point[0] + point[1] * point[1]);
 }
 
 double random_double(double lowerBound, double upperBound) {
     
     // Validate input bounds
-    if (lowerBound >= upperBound) {
-        throw std::invalid_argument("lowerBound must be less than upperBound");
+    if (lowerBound > upperBound) {
+        throw std::invalid_argument("lowerBound must be less than or equal to upperBound");
     }
-    else if (lowerBound == upperBound) {
-        return lowerBound; // or upperBound, since they are equal
+    if (lowerBound == upperBound) {
+        return lowerBound; // closed interval degenerates to a single value
     }
             
     // random_device is a source of non-deterministic seed values provided by the OS.
@@ -40,7 +43,8 @@ double random_double(double lowerBound, double upperBound) {
 }
 
 int main() {
-    int samples = 1'000'000; // number of random samples
+    int samples = 1'000'000;
+
     int insideCircle = 0;
     int outsideCircle = 0;
 
@@ -53,7 +57,7 @@ int main() {
         double point[2] = { random_double(lowerBound, upperBound), random_double(lowerBound, upperBound) };
 
         // Calculate the distance from the origin (0, 0)
-        double distance = calculateDistanceFromOrigin(point[0], point[1]);
+        double distance = calculateDistanceFromOrigin(point);
         
         if (distance <= 1.0) {
             insideCircle++;
