@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 struct Date {
     int day;
@@ -38,7 +39,6 @@ class Portfolio {
                 removePosition(order.ticker, order.quantity);
                 return;
             }
-
         }
 
         void printPositions() {
@@ -49,9 +49,11 @@ class Portfolio {
             else {
                 std::cout << "Current Portfolio Positions:" << std::endl;
                 for (const Position &pos : positions) {
-                    std::cout << "Ticker: " << pos.ticker 
-                            << ", Avg Price: " << pos.avgPrice 
-                            << ", Quantity: " << pos.quantity << std::endl;
+                    if (pos.quantity > 0) {
+                        std::cout << "Ticker: " << pos.ticker 
+                                << ", Avg Price: " << pos.avgPrice 
+                                << ", Quantity: " << pos.quantity << std::endl;
+                    }
                 }
                 return;
             }
@@ -75,6 +77,15 @@ class Portfolio {
                 return;
             }
         }
+
+        double getTotalValue() {
+            double totalValue = 0.0;
+            for (const Position &pos : positions) {
+                totalValue += pos.avgPrice * pos.quantity;
+            }
+            return totalValue;
+        }
+
 
         void clearPositions() {
             positions.clear();
@@ -110,10 +121,18 @@ class Portfolio {
                         return;
                     }
                     existingPos.quantity -= quantity; // Update quantity
+
+                    removeZeroQuantityPositions(); // Clean up zero quantity positions
                     return;
                 }
             }
             std::cout << "Error: No position found for ticker " << ticker << std::endl;
+        }
+
+        void removeZeroQuantityPositions() {
+            positions.erase(std::remove_if(positions.begin(), positions.end(),
+                [](const Position &pos) { return pos.quantity == 0; }),
+                positions.end());
         }
 };
 
@@ -121,14 +140,16 @@ int main() {
 
     Portfolio myPortfolio;
 
-    myPortfolio.addOrder({"AAPL", 150.0, 10, OrderType::BUY, {1, 1, 2023}});
-    myPortfolio.addOrder({"AAPL", 160.0, 10, OrderType::BUY, {2, 1, 2023}});
+    myPortfolio.addOrder({"AAPL", 150.0, 10, OrderType::BUY, {1, 1, 2025}});
+    myPortfolio.addOrder({"AAPL", 160.0, 10, OrderType::BUY, {2, 1, 2025}});
 
     myPortfolio.printPositions();
 
-    myPortfolio.addOrder({"AAPL", 155.0, 5, OrderType::SELL, {3, 1, 2023}});
+    myPortfolio.addOrder({"AAPL", 155.0, 20, OrderType::SELL, {3, 1, 2025}});
+    myPortfolio.addOrder({"GOOGL", 2800.0, 5, OrderType::BUY, {4, 1, 2025}});
 
     myPortfolio.printPositions();
+    std::cout << "Total Portfolio Value: " << myPortfolio.getTotalValue() << std::endl;
     myPortfolio.printOrders();
 
     return 0;
