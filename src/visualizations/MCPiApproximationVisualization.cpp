@@ -264,7 +264,7 @@ int main() {
         int pointsOutside = 0;
         
         // Draw all points up to currentPointIndex
-        for (size_t i = 0; i < currentPointIndex; ++i) {
+        for (int i = 0; i < currentPointIndex; ++i) {
             const Pt& pt = points[i];
 
             sf::CircleShape pointShape(1); // radius of 1 pixel
@@ -280,9 +280,7 @@ int main() {
             }
             
             // Calculate position in window coordinates
-            sf::Vector2f position = Origin + 
-                static_cast<sf::Vector2f>((static_cast<float>(pt.coords[0]) * pointsPerPixel * 100) * Vx + 
-                                          (static_cast<float>(pt.coords[1]) * pointsPerPixel * 100) * Vy);
+            sf::Vector2f position = Origin + static_cast<sf::Vector2f>((static_cast<float>(pt.coords[0]) * pointsPerPixel * 100) * Vx + (static_cast<float>(pt.coords[1]) * pointsPerPixel * 100) * Vy);
             pointShape.setPosition(position);
             
             window.draw(pointShape);
@@ -290,9 +288,7 @@ int main() {
 
         // Calculate current pi estimate
         double currentPiEstimate = 0.0;
-        if (currentPointIndex > 0) {
-            currentPiEstimate = 4.0 * pointsInside / static_cast<double>(currentPointIndex);
-        }
+        currentPointIndex > 0 ? currentPiEstimate = 4.0 * pointsInside / static_cast<double>(currentPointIndex) : currentPiEstimate;
 
         // Display statistics above the rectangle
         std::string statsString = "Samples: " + std::to_string(currentPointIndex) + " / " + std::to_string(nSamples) + 
